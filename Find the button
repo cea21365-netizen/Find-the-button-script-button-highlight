@@ -1,1 +1,127 @@
-local v0=game.Players.LocalPlayer;local v1=v0:WaitForChild("PlayerGui");local v2=game:GetService("RunService");local v3=Instance.new("ScreenGui");v3.Name="ESGToggleGui";v3.Parent=v1;v3.ResetOnSpawn=false;local v7=Instance.new("TextButton");v7.Size=UDim2.new(0,1147 -(915 + 82) ,0 + 0 ,141 -91 );v7.Position=UDim2.new(0 + 0 ,13 -3 ,1187.5 -(1069 + 118) ,0 + 0 );v7.BackgroundColor3=Color3.fromRGB(578 -323 ,109 -59 ,9 + 41 );v7.Text="Button ESP: OFF";v7.TextColor3=Color3.fromRGB(453 -198 ,255,1122 -867 );v7.Font=Enum.Font.SourceSansBold;v7.TextSize=20 + 0 ;v7.Parent=v3;local v17=false;local v18=nil;local function v19() if v18 then local v30=791 -(368 + 423) ;while true do if (v30==(0 -0)) then v18:Destroy();v18=nil;break;end end end end local function v20(v23) local v24=18 -(10 + 8) ;local v25;while true do if (v24==1) then v25.Adornee=v23;v25.FillTransparency=1413.3 -(447 + 966) ;v25.OutlineTransparency=0 -0 ;v25.OutlineColor=Color3.fromRGB(697 -(416 + 26) ,814 -559 ,110 + 145 );v24=5 -3 ;end if (v24==(3 -1)) then v25.DepthMode=Enum.HighlightDepthMode.AlwaysOnTop;v18=v25;task.spawn(function() local v41=0;local v42;while true do if (v41==(438 -(145 + 293))) then v42=14 -(9 + 5) ;while v18==v25  do v25.FillColor=Color3.fromHSV(v42,431 -(44 + 386) ,1487 -(998 + 488) );v42=(v42 + 0.01 + 0)%(1 + 0) ;task.wait(0.03 + 0 );end break;end end end);break;end if (v24==(772 -(201 + 571))) then v19();v25=Instance.new("Highlight");v25.Name="ButtonESP";v25.Parent=v23;v24=1;end end end local function v21() local v26=1138 -(116 + 1022) ;local v27;while true do if (v26==(0 -0)) then if  not v17 then return;end v27=v0:FindFirstChild("leaderstats") and v0.leaderstats:FindFirstChild("Level") ;v26=1 + 0 ;end if (v26==(1 + 0)) then if v27 then local v43=0 -0 ;local v44;local v45;local v46;while true do if (v43==(3 -2)) then v46=nil;while true do if (1==v44) then if v46 then v20(v46);end break;end if (v44==0) then local v52=859 -(814 + 45) ;while true do if (v52==(0 -0)) then v45=game.Workspace:FindFirstChild("Levels") and game.Workspace.Levels:FindFirstChild(tostring(v27.Value)) ;v46=v45 and v45:FindFirstChild("ButtonModel") and v45.ButtonModel:FindFirstChild("Button") ;v52=1 + 0 ;end if (v52==1) then v44=1 + 0 ;break;end end end end break;end if (v43==(0 -0)) then v44=0 + 0 ;v45=nil;v43=1475 -(1329 + 145) ;end end end break;end end end v7.MouseButton1Click:Connect(function() local v28=0 + 0 ;local v29;while true do if (v28==(885 -(261 + 624))) then v29=0;while true do if (v29==(0 -0)) then v17= not v17;if v17 then v7.Text="Button ESP: ON";v7.BackgroundColor3=Color3.fromRGB(768 -(15 + 703) ,1335 -(1020 + 60) ,50);v21();else local v50=438 -(262 + 176) ;local v51;while true do if (v50==(1721 -(345 + 1376))) then v51=1423 -(630 + 793) ;while true do if ((3 -2)==v51) then v19();break;end if (v51==(0 -0)) then v7.Text="Button ESP: OFF";v7.BackgroundColor3=Color3.fromRGB(611 -356 ,1256 -(696 + 510) ,20 + 30 );v51=1 -0 ;end end break;end end end break;end end break;end end end);local v22=v0:WaitForChild("leaderstats"):WaitForChild("Level");v22.Changed:Connect(function() if v17 then local v31=0 -0 ;local v32;while true do if (v31==(1747 -(760 + 987))) then v32=1913 -(1789 + 124) ;while true do if (v32==(766 -(745 + 21))) then task.wait(1);v21();break;end end break;end end end end);
+local player = game.Players.LocalPlayer
+local pGui = player:WaitForChild("PlayerGui")
+
+-- 1. Main Container
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CustomESGGui"
+screenGui.Parent = pGui
+screenGui.ResetOnSpawn = false
+
+-- 2. Draggable Main Button
+local mainBtn = Instance.new("TextButton")
+mainBtn.Name = "MainButton"
+mainBtn.Size = UDim2.new(0, 160, 0, 50)
+mainBtn.Position = UDim2.new(0.1, 0, 0.5, 0)
+mainBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+mainBtn.Text = "ESP: OFF"
+mainBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+mainBtn.Font = Enum.Font.GothamBold
+mainBtn.TextSize = 16
+mainBtn.Parent = screenGui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = mainBtn
+
+-- 3. Small "Hide" Toggle Button
+local hideBtn = Instance.new("TextButton")
+hideBtn.Size = UDim2.new(0, 40, 0, 20)
+hideBtn.Position = UDim2.new(1, -45, 0, 5)
+hideBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+hideBtn.Text = "HIDE"
+hideBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+hideBtn.Font = Enum.Font.SourceSans
+hideBtn.TextSize = 10
+hideBtn.Parent = mainBtn
+
+local hideCorner = Instance.new("UICorner")
+hideCorner.CornerRadius = UDim.new(0, 6)
+hideCorner.Parent = hideBtn
+
+-- 4. Restore Button (Visible when main is hidden)
+local restoreBtn = Instance.new("TextButton")
+restoreBtn.Size = UDim2.new(0, 60, 0, 30)
+restoreBtn.Position = UDim2.new(0, 10, 0, 10)
+restoreBtn.Text = "SHOW"
+restoreBtn.Visible = false
+restoreBtn.Parent = screenGui
+Instance.new("UICorner", restoreBtn).CornerRadius = UDim.new(0, 8)
+
+--- DRAGGING LOGIC ---
+local dragging, dragInput, dragStart, startPos
+mainBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainBtn.Position
+    end
+end)
+mainBtn.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        mainBtn.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+mainBtn.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+--- ESP LOGIC ---
+local espEnabled = false
+local currentHighlight = nil
+
+local function applyESP(targetPart)
+    if currentHighlight then currentHighlight:Destroy() end
+    local h = Instance.new("Highlight")
+    h.Parent = targetPart
+    h.OutlineColor = Color3.fromRGB(255, 255, 255) -- White Outline
+    h.FillTransparency = 0.4
+    h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    currentHighlight = h
+    task.spawn(function()
+        local i = 0
+        while currentHighlight == h do
+            h.FillColor = Color3.fromHSV(i, 0.8, 1)
+            i = (i + 0.01) % 1
+            task.wait(0.03)
+        end
+    end)
+end
+
+local function findLevelButton()
+    if not espEnabled then return end
+    local levelStat = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Level")
+    if levelStat then
+        local path = game.Workspace:FindFirstChild("Levels") and game.Workspace.Levels:FindFirstChild(tostring(levelStat.Value))
+        local btn = path and path:FindFirstChild("ButtonModel") and path.ButtonModel:FindFirstChild("Button")
+        if btn then applyESP(btn) end
+    end
+end
+
+--- UI BUTTON ACTIONS ---
+mainBtn.MouseButton1Click:Connect(function()
+    espEnabled = not espEnabled
+    mainBtn.Text = espEnabled and "ESP: ON" or "ESP: OFF"
+    mainBtn.BackgroundColor3 = espEnabled and Color3.fromRGB(0, 180, 0) or Color3.fromRGB(40, 40, 40)
+    if espEnabled then findLevelButton() else if currentHighlight then currentHighlight:Destroy() end end
+end)
+
+hideBtn.MouseButton1Click:Connect(function()
+    mainBtn.Visible = false
+    restoreBtn.Visible = true
+end)
+
+restoreBtn.MouseButton1Click:Connect(function()
+    mainBtn.Visible = true
+    restoreBtn.Visible = false
+end)
+
+-- Auto-update on level change
+player:WaitForChild("leaderstats"):WaitForChild("Level").Changed:Connect(findLevelButton)
