@@ -1,127 +1,157 @@
 local player = game.Players.LocalPlayer
 local pGui = player:WaitForChild("PlayerGui")
+local runService = game:GetService("RunService")
 
--- 1. Main Container
+-- 1. Main UI Container
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "CustomESGGui"
+screenGui.Name = "ButtonHelperUI"
 screenGui.Parent = pGui
 screenGui.ResetOnSpawn = false
 
--- 2. Draggable Main Button
-local mainBtn = Instance.new("TextButton")
-mainBtn.Name = "MainButton"
-mainBtn.Size = UDim2.new(0, 160, 0, 50)
-mainBtn.Position = UDim2.new(0.1, 0, 0.5, 0)
-mainBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-mainBtn.Text = "ESP: OFF"
-mainBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-mainBtn.Font = Enum.Font.GothamBold
-mainBtn.TextSize = 16
-mainBtn.Parent = screenGui
+-- 2. Main Draggable Frame (Holds everything)
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 180, 0, 120)
+mainFrame.Position = UDim2.new(0.1, 0, 0.4, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true -- Built-in Roblox drag property
+mainFrame.Parent = screenGui
 
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 12)
-corner.Parent = mainBtn
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
 
--- 3. Small "Hide" Toggle Button
+-- 3. ESP Toggle
+local espBtn = Instance.new("TextButton")
+espBtn.Size = UDim2.new(0, 160, 0, 35)
+espBtn.Position = UDim2.new(0, 10, 0, 10)
+espBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+espBtn.Text = "ESP: OFF"
+espBtn.TextColor3 = Color3.new(1, 1, 1)
+espBtn.Font = Enum.Font.GothamBold
+espBtn.Parent = mainFrame
+Instance.new("UICorner", espBtn)
+
+-- 4. Auto-Click Toggle
+local clickBtn = Instance.new("TextButton")
+clickBtn.Size = UDim2.new(0, 160, 0, 35)
+clickBtn.Position = UDim2.new(0, 10, 0, 50)
+clickBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+clickBtn.Text = "AUTO-CLICK: OFF"
+clickBtn.TextColor3 = Color3.new(1, 1, 1)
+clickBtn.Font = Enum.Font.GothamBold
+clickBtn.Parent = mainFrame
+Instance.new("UICorner", clickBtn)
+
+-- 5. Minimize/Hide Button
 local hideBtn = Instance.new("TextButton")
-hideBtn.Size = UDim2.new(0, 40, 0, 20)
-hideBtn.Position = UDim2.new(1, -45, 0, 5)
-hideBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-hideBtn.Text = "HIDE"
-hideBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-hideBtn.Font = Enum.Font.SourceSans
-hideBtn.TextSize = 10
-hideBtn.Parent = mainBtn
+hideBtn.Size = UDim2.new(0, 160, 0, 20)
+hideBtn.Position = UDim2.new(0, 10, 0, 90)
+hideBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+hideBtn.Text = "HIDE UI"
+hideBtn.TextColor3 = Color3.new(1, 1, 1)
+hideBtn.Font = Enum.Font.Gotham
+hideBtn.Parent = mainFrame
+Instance.new("UICorner", hideBtn).CornerRadius = UDim.new(0, 5)
 
-local hideCorner = Instance.new("UICorner")
-hideCorner.CornerRadius = UDim.new(0, 6)
-hideCorner.Parent = hideBtn
+-- 6. Show Button (Restores visibility)
+local showBtn = Instance.new("TextButton")
+showBtn.Size = UDim2.new(0, 60, 0, 30)
+showBtn.Position = UDim2.new(0, 10, 0, 10)
+showBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+showBtn.Text = "SHOW"
+showBtn.TextColor3 = Color3.new(1, 1, 1)
+showBtn.Visible = false
+showBtn.Parent = screenGui
+Instance.new("UICorner", showBtn)
 
--- 4. Restore Button (Visible when main is hidden)
-local restoreBtn = Instance.new("TextButton")
-restoreBtn.Size = UDim2.new(0, 60, 0, 30)
-restoreBtn.Position = UDim2.new(0, 10, 0, 10)
-restoreBtn.Text = "SHOW"
-restoreBtn.Visible = false
-restoreBtn.Parent = screenGui
-Instance.new("UICorner", restoreBtn).CornerRadius = UDim.new(0, 8)
-
---- DRAGGING LOGIC ---
-local dragging, dragInput, dragStart, startPos
-mainBtn.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = mainBtn.Position
-    end
-end)
-mainBtn.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then
-        dragInput = input
-    end
-end)
-game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        local delta = input.Position - dragStart
-        mainBtn.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-mainBtn.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
---- ESP LOGIC ---
-local espEnabled = false
+--- LOGIC VARIABLES ---
+local espOn = false
+local clickOn = false
 local currentHighlight = nil
 
-local function applyESP(targetPart)
-    if currentHighlight then currentHighlight:Destroy() end
-    local h = Instance.new("Highlight")
-    h.Parent = targetPart
-    h.OutlineColor = Color3.fromRGB(255, 255, 255) -- White Outline
-    h.FillTransparency = 0.4
-    h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    currentHighlight = h
-    task.spawn(function()
-        local i = 0
-        while currentHighlight == h do
-            h.FillColor = Color3.fromHSV(i, 0.8, 1)
-            i = (i + 0.01) % 1
-            task.wait(0.03)
-        end
-    end)
-end
-
-local function findLevelButton()
-    if not espEnabled then return end
+-- Function to find the level button object
+local function getTargetButton()
     local levelStat = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Level")
     if levelStat then
-        local path = game.Workspace:FindFirstChild("Levels") and game.Workspace.Levels:FindFirstChild(tostring(levelStat.Value))
-        local btn = path and path:FindFirstChild("ButtonModel") and path.ButtonModel:FindFirstChild("Button")
-        if btn then applyESP(btn) end
+        local folder = game.Workspace:FindFirstChild("Levels") and game.Workspace.Levels:FindFirstChild(tostring(levelStat.Value))
+        return folder and folder:FindFirstChild("ButtonModel") and folder.ButtonModel:FindFirstChild("Button")
+    end
+    return nil
+end
+
+-- ESP EFFECT
+local function updateESP()
+    if currentHighlight then currentHighlight:Destroy() end
+    if not espOn then return end
+    
+    local target = getTargetButton()
+    if target then
+        local h = Instance.new("Highlight")
+        h.Parent = target
+        h.OutlineColor = Color3.new(1, 1, 1) -- White Outline
+        h.FillTransparency = 0.3
+        h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        currentHighlight = h
+        
+        task.spawn(function()
+            local i = 0
+            while currentHighlight == h do
+                h.FillColor = Color3.fromHSV(i, 1, 1)
+                i = (i + 0.01) % 1
+                task.wait(0.03)
+            end
+        end)
     end
 end
 
---- UI BUTTON ACTIONS ---
-mainBtn.MouseButton1Click:Connect(function()
-    espEnabled = not espEnabled
-    mainBtn.Text = espEnabled and "ESP: ON" or "ESP: OFF"
-    mainBtn.BackgroundColor3 = espEnabled and Color3.fromRGB(0, 180, 0) or Color3.fromRGB(40, 40, 40)
-    if espEnabled then findLevelButton() else if currentHighlight then currentHighlight:Destroy() end end
+--- BUTTON CLICKS ---
+espBtn.MouseButton1Click:Connect(function()
+    espOn = not espOn
+    espBtn.Text = espOn and "ESP: ON" or "ESP: OFF"
+    espBtn.BackgroundColor3 = espOn and Color3.fromRGB(0, 180, 0) or Color3.fromRGB(60, 60, 60)
+    updateESP()
+end)
+
+clickBtn.MouseButton1Click:Connect(function()
+    clickOn = not clickOn
+    clickBtn.Text = clickOn and "AUTO-CLICK: ON" or "AUTO-CLICK: OFF"
+    clickBtn.BackgroundColor3 = clickOn and Color3.fromRGB(0, 180, 0) or Color3.fromRGB(60, 60, 60)
 end)
 
 hideBtn.MouseButton1Click:Connect(function()
-    mainBtn.Visible = false
-    restoreBtn.Visible = true
+    mainFrame.Visible = false
+    showBtn.Visible = true
 end)
 
-restoreBtn.MouseButton1Click:Connect(function()
-    mainBtn.Visible = true
-    restoreBtn.Visible = false
+showBtn.MouseButton1Click:Connect(function()
+    mainFrame.Visible = true
+    showBtn.Visible = false
 end)
 
--- Auto-update on level change
-player:WaitForChild("leaderstats"):WaitForChild("Level").Changed:Connect(findLevelButton)
+-- Level Change Auto-Update
+player:WaitForChild("leaderstats"):WaitForChild("Level").Changed:Connect(function()
+    task.wait(1)
+    if espOn then updateESP() end
+end)
+
+-- THE RAPID CLICKER LOOP
+task.spawn(function()
+    while true do
+        if clickOn then
+            local target = getTargetButton()
+            if target and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local dist = (player.Character.HumanoidRootPart.Position - target.Position).Magnitude
+                -- If within 10 studs, fire ClickDetector or TouchInterest
+                if dist < 12 then
+                    if target:FindFirstChildOfClass("ClickDetector") then
+                        fireclickdetector(target:FindFirstChildOfClass("ClickDetector"))
+                    elseif target:FindFirstChild("TouchInterest") then
+                        firetouchinterest(target, player.Character.HumanoidRootPart, 0)
+                        firetouchinterest(target, player.Character.HumanoidRootPart, 1)
+                    end
+                end
+            end
+        end
+        task.wait(0.1) -- Rapid fire speed
+    end
+end)
