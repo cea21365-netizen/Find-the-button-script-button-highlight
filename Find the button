@@ -1,36 +1,171 @@
---[[ 
-    BUTTON GOD v3.0 - FULLY OBFUSCATED 
-    [PROTECTION LEVEL: HIGH]
-    [FEATURES: RAINBOW ESP, INF-CLICK, DRAGGABLE UI]
-]]
+local player = game.Players.LocalPlayer
+local pGui = player:WaitForChild("PlayerGui")
+local runService = game:GetService("RunService")
 
-local _0x5f2 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-local function _d(_data)
-    _data = string.gsub(_data, '[^'.._0x5f2..'=]', '')
-    return (_data:gsub('.', function(x)
-        if (x == '=') then return '' end
-        local r, f = '', (_0x5f2:find(x) - 1)
-        for i = 6, 1, -1 do r = r .. (f % 2^i - f % 2^(i - 1) > 0 and '1' or '0') end
-        return r;
-    end):gsub('%d%d%d%d%d%d%d%d', function(x)
-        local c = 0
-        for i = 1, 8 do c = c + (x:sub(i, i) == '1' and 2^(8 - i) or 0) end
-        return string.char(c)
-    end))
+-- 1. Main UI Container
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ButtonGodUI"
+screenGui.Parent = pGui
+screenGui.ResetOnSpawn = false
+
+-- 2. Main Frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 180, 0, 160)
+mainFrame.Position = UDim2.new(0.1, 0, 0.4, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+mainFrame.Active = true
+mainFrame.Draggable = true 
+mainFrame.Parent = screenGui
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
+
+local layout = Instance.new("UIListLayout")
+layout.Parent = mainFrame
+layout.Padding = UDim.new(0, 5)
+layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+layout.VerticalAlignment = Enum.VerticalAlignment.Center
+
+local function createBtn(text, color)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(0, 160, 0, 30)
+    b.BackgroundColor3 = color
+    b.Text = text
+    b.TextColor3 = Color3.new(1, 1, 1)
+    b.Font = Enum.Font.GothamBold
+    b.TextSize = 12
+    b.Parent = mainFrame
+    Instance.new("UICorner", b)
+    return b
 end
 
-local _payload = _d("bG9jYWwgcCA9IGdhbWUuUGxheWVycy5Mb2NhbFBsYXllcgpsb2NhbCBnID0gcC5QbGF5ZXJHdWkKaWYgZy1GaW5kRmlyc3RDaGlsZCgiQnV0dG9uR29kVjMiKSB0aGVuIGcuQnV0dG9uR29kVjM6RGVzdHJveSgpIGVuZApsb2NhbCBzID0gSW5zdGFuY2UubmV3KCJTY3JlZW5HdWkiLCBnKQpzLk5hbWUgPSAiQnV0dG9uR29kVjMiCnMuUmVzZXRPblNwYXduID0gZmFsc2UKbG9jYWwgZiA9IEluc3RhbmNlLm5ldygiRnJhbWUiLCBzKQpmLlNpemUgPSBVREkyLm5ldygwLCAxODAsIDAsIDE4MCkKZi5Qb3NpdGlvbiA9IFVEMS5uZXcoMC4wNSwgMCwgMC40LCAwKQpmLkJhY2tncm91bmRDb2xvcjMgPSBDb2xvcjMubmV3KDAuMDgsIDAuMDgsIDAuMDgpCmYuQWN0aXZlID0gdHJ1ZQpmLkRyYWdnYWJsZSA9IHRydWUKSW5zdGFuY2UubmV3KCJVSUNvcm5lciIsIGYpCmxvY2FsIGwgPSBJbnN0YW5jZS5uZXcoIlVJTGlzdExheW91dCIsIGYpCmwuaG9yaXpvbnRhbEFsaWdubWVudCA9ICJDZW50ZXIiCmwudmVydGljYWxBbGlnbm1lbnQgPSAiQ2VudGVyIgpsLlBhZGRpbmcgPSBVREkubmV3KDAsIDUpCmxvY2FsIGZ1bmN0aW9uIGNiKHQsIGM5KQpsb2NhbCBiID0gSW5zdGFuY2UubmV3KCJUZXh0YnV0dG9uIiwgZikKYi5TaXplID0gVURJMi5uZXcoMCwgMTYwLCAwLCAzMikKYi5CYWNrZ3JvdW5kQ29sb3IzID0gYzkKYi5UZXh0ID0gdApiLlRleHRDb2xvcjMgPSBDb2xvcjMubmV3KDEsIDEsIDEpCmIuRm9udCA9ICJHb3RoYW1Cb2xkIgpJbnN0YW5jZS5uZXcoIlVJQ29ybmVyIiwgYikKcmV0dXJuIGIKZW5kCmxvY2FsIGUxID0gY2IoIkVTUDogT0ZGIiwgQ29sb3IzLm5ldygwLjIsIDAuMiwgMC4yKSkKbG9jYWwgaTEgPSBjYigiSU5GSU5JVEU6IE9mZiIsIENvbG9yMy5uZXcoMC4yLCAwLjIsIDAuMikpCmxvY2FsIGgxID0gY2IoIkhJREUgTUVOVSIsIENvbG9yMy5uZXcoMC41LCAwLCAwKSkKbG9jYWwgc2IgPSBJbnN0YW5jZS5uZXcoIlRleHRCdXR0b24iLCBzKQpzYi5TaXplID0gVURJMi5uZXcoMCwgODAsIDAsIDMwKQpzYi5Qb3NpdGlvbiA9IFVEMS5uZXcoMCwgMTAsIDAsIDEwKQpzYi5CYWNrZ3JvdW5kQ29sb3IzID0gQ29sb3IzLm5ldygwLjEsIDAuMSwgMC4xKQpzYi5UZXh0ID0gIlNIT1cgVUkiCnNiLlRleHRDb2xvcjMgPSBDb2xvcjMubmV3KDEsIDEsIDEpCnNiLlZpc2libGUgPSBmYWxzZQpJbnN0YW5jZS5uZXcoIlVJQ29ybmVyIiwgc2IpCmxvY2FsIGVzID0gZmFsc2UKbG9jYWwgaXMgPSBmYWxzZQpsb2NhbCBjID0gbmlsCmxvY2FsIGZ1bmN0aW9uIGdiKCkKbG9jYWwgdiA9IHA6RmluZEZpcnN0Q2hpbGQoImxlYWRlcnN0YXRzIikgYW5kIHAubGVhZGVyc3RhdHM6RmluZEZpcnN0Q2hpbGQoIkxldmVsIikKaWYgdiB0aGVuCmxvY2FsIGZsID0gd29ya3NwYWNlOkZpbmRGaXJzdENoaWxkKCJMZXZlbHMiKSBhbmQgd29ya3NwYWNlLkxldmVsczpGaW5kRmlyc3RDaGlsZCh0b3N0cmluZyh2LlZhbHVlKSkKcmV0dXJuIGZsIGFuZCBmbDpGaW5kRmlyc3RDaGlsZCgiQnV0dG9uTW9kZWwiKSBhbmQgZmwuaV9CdXR0b25Nb2RlbDpGaW5kRmlyc3RDaGlsZCgiQnV0dG9uIikKZW5kCmVuZAplMS5Nb3VzZUJ1dHRvbjFDbGljazpDb25uZWN0KGZ1bmN0aW9uKCllcyA9IG5vdCBlcyBlMS5UZXh0ID0gZXMgYW5kICJFU1A6IE9OIiBvciAiRVNQOiBPRkYiIGUxLkJhY2tncm91bmRDb2xvcjMgPSBlcyBhbmQgQ29sb3IzLm5ldygwLCAwLjYsIDApIG9yIENvbG9yMy5uZXcoMC4yLCAwLjIsIDAuMikgZW5kKQppMS5Nb3VzZUJ1dHRvbjFDbGljazpDb25uZWN0KGZ1bmN0aW9uKClpcyA9IG5vdCBpcyBpMS5UZXh0ID0gaXMgYW5kICJJTkZJTklURTogT04iIG9yICJJTkZJTklURTogT0ZGImkxLkJhY2tncm91bmRDb2xvcjMgPSBpcyBhbmQgQ29sb3IzLm5ldygwLjYsIDAsIDAuNikgb3IgQ29sb3IzLm5ldygwLjIsIDAuMiwgMC4yKSBlbmQpCmgxLk1vdXNlQnV0dG9uMUNsaWNrOkNvbm5lY3QoZnVuY3Rpb24oKWYuVmlzaWJsZSA9IGZhbHNlIHNiLlZpc2libGUgPSB0cnVlIGVuZCkKc2IuTW91c2VCdXR0b24xQ2xpY2s6Q29ubmVjdChmdW5jdGlvbigpZi5WaXNpYmxlID0gdHJ1ZSBzYi5WaXNpYmxlID0gZmFsc2UgZW5kKQp0YXNrLnNwYXduKGZ1bmN0aW9uKCkgd2hpbGUgdGFzay53YWl0KDAuMSkgZG8gbG9jYWwgcmU9Z2IoKSBpZiByZSB0aGVuIGlmIGlzIHRoZW4gaWYgcmU6RmluZEZpcnN0Q2hpbGRPZkNsYXNzKCJDbGlja0RldGVjdG9yIikgdGhlbiBmaXJlY2xpY2tkZXRlY3RvcihyZTpGaW5kRmlyc3RDaGlsZE9mQ2xhc3MoIkNsaWNrRGV0ZWN0b3IiKSkgZW5kIGlmIHJlOkZpbmRGaXJzdENoaWxkKCJUb3VjaEludGVyZXN0IikgYW5kIHAuQ2hhcmFjdGVyIHRoZW4gbG9jYWwgcnQgPSBwLkNoYXJhY3RlcjpGaW5kRmlyc3RDaGlsZCgiSHVtb25vaWRSb290UGFydCIpIGlmIHJ0IHRoZW4gZmlyZXRvdWNoaW50ZXJlc3QocmUsIHJ0LCAwKSBmaXJldG91Y2hpbnRlcmVzdChyZSwgcnQsIDEpIGVuZCBlbmQgZW5kIGlmIGVzIHRoZW4gaWYgbm90IHI6RmluZEZpcnN0Q2hpbGQoIkJTUCIpIHRoZW4gbG9jYWwgaCA9IEluc3RhbmNlLm5ldygiSGlnaGxpZ2h0IiwgcmUpIGguTmFtZT0iQlNQImguRGVwdGhNb2RlPSJBbHdheXNPblRvcCJoLk91dGxpbmVDb2xvcj1Db2xvcjMubmV3KDEsMSwxKSB0YXNrLnNwYXduKGZ1bmN0aW9uKCkgbG9jYWwgayA9IDAgd2hpbGUgaC5QYXJlbnQgZG8gaC5GaWxsQ29sb3I9Q29sb3IzLmZyb21IU1YcaywxLDEpIGs9KGsrMC4wMDUpJTExIHRhc2sud2FpdCgwLjAyKSBlbmQgZW5kKSBlbmQgZW5kIGVuZCBlbmQgZW5kKQ==")
+local espBtn = createBtn("ESP & TRACER: OFF", Color3.fromRGB(60, 60, 60))
+local clickBtn = createBtn("AUTO-CLICK: OFF", Color3.fromRGB(60, 60, 60))
+local infBtn = createBtn("INFINITE CLICK: OFF", Color3.fromRGB(60, 60, 60))
+local hideBtn = createBtn("HIDE UI", Color3.fromRGB(150, 0, 0))
 
--- Initializing execution environment
-local _env = getgenv and getgenv() or _G
-_env.player = game:GetService("Players").LocalPlayer
-_env.workspace = game:GetService("Workspace")
+local showBtn = Instance.new("TextButton")
+showBtn.Size = UDim2.new(0, 60, 0, 30)
+showBtn.Position = UDim2.new(0, 10, 0, 10)
+showBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+showBtn.Text = "SHOW"
+showBtn.TextColor3 = Color3.new(1, 1, 1)
+showBtn.Visible = false
+showBtn.Parent = screenGui
+Instance.new("UICorner", showBtn)
 
--- Execute the hidden payload
-local _success, _err = pcall(function()
-    loadstring(_payload)()
+--- LOGIC ---
+local espOn, clickOn, infOn = false, false, false
+local currentHighlight = nil
+local currentBeam = nil
+local attachment0 = nil -- Part of character
+local attachment1 = nil -- Part of button
+
+local function getTargetButton()
+    local levelStat = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Level")
+    if levelStat then
+        local folder = game.Workspace:FindFirstChild("Levels") and game.Workspace.Levels:FindFirstChild(tostring(levelStat.Value))
+        return folder and folder:FindFirstChild("ButtonModel") and folder.ButtonModel:FindFirstChild("Button")
+    end
+end
+
+-- Function to clear visuals
+local function clearVisuals()
+    if currentHighlight then currentHighlight:Destroy(); currentHighlight = nil end
+    if currentBeam then currentBeam:Destroy(); currentBeam = nil end
+    if attachment0 then attachment0:Destroy(); attachment0 = nil end
+    if attachment1 then attachment1:Destroy(); attachment1 = nil end
+end
+
+local function updateESP()
+    clearVisuals()
+    if not espOn then return end
+    
+    local target = getTargetButton()
+    local char = player.Character
+    if target and char and char:FindFirstChild("HumanoidRootPart") then
+        -- 1. Create Rainbow Highlight
+        local h = Instance.new("Highlight")
+        h.Parent = target
+        h.OutlineColor = Color3.new(1, 1, 1)
+        h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        currentHighlight = h
+        
+        -- 2. Create Tracer Beam
+        attachment0 = Instance.new("Attachment", char.HumanoidRootPart)
+        attachment1 = Instance.new("Attachment", target)
+        
+        local beam = Instance.new("Beam")
+        beam.Attachment0 = attachment0
+        beam.Attachment1 = attachment1
+        beam.Width0 = 0.2
+        beam.Width1 = 0.2
+        beam.FaceCamera = true
+        beam.ZOffset = 1
+        beam.Parent = char.HumanoidRootPart
+        currentBeam = beam
+
+        -- Rainbow Loop for both Highlight and Beam
+        task.spawn(function()
+            local i = 0
+            while currentHighlight == h and currentBeam == beam do
+                local color = Color3.fromHSV(i, 1, 1)
+                h.FillColor = color
+                beam.Color = ColorSequence.new(color)
+                i = (i + 0.01) % 1
+                task.wait(0.03)
+            end
+        end)
+    end
+end
+
+-- Button Logic
+espBtn.MouseButton1Click:Connect(function()
+    espOn = not espOn
+    espBtn.Text = espOn and "ESP & TRACER: ON" or "ESP & TRACER: OFF"
+    espBtn.BackgroundColor3 = espOn and Color3.fromRGB(0, 180, 0) or Color3.fromRGB(60, 60, 60)
+    updateESP()
 end)
 
-if not _success then
-    warn("Bootstrap Error: " .. tostring(_err))
-end
+clickBtn.MouseButton1Click:Connect(function()
+    clickOn = not clickOn
+    clickBtn.Text = clickOn and "AUTO: ON" or "AUTO: OFF"
+    clickBtn.BackgroundColor3 = clickOn and Color3.fromRGB(0, 180, 0) or Color3.fromRGB(60, 60, 60)
+end)
+
+infBtn.MouseButton1Click:Connect(function()
+    infOn = not infOn
+    infBtn.Text = infOn and "INFINITE: ON" or "INFINITE: OFF"
+    infBtn.BackgroundColor3 = infOn and Color3.fromRGB(180, 0, 180) or Color3.fromRGB(60, 60, 60)
+end)
+
+hideBtn.MouseButton1Click:Connect(function() mainFrame.Visible = false showBtn.Visible = true end)
+showBtn.MouseButton1Click:Connect(function() mainFrame.Visible = true showBtn.Visible = false end)
+
+-- Master Loop for Clicking
+task.spawn(function()
+    while true do
+        local target = getTargetButton()
+        if target then
+            if infOn then
+                local cd = target:FindFirstChildOfClass("ClickDetector")
+                if cd then fireclickdetector(cd) end
+                if target:FindFirstChild("TouchInterest") and player.Character then
+                    firetouchinterest(target, player.Character.PrimaryPart, 0)
+                    firetouchinterest(target, player.Character.PrimaryPart, 1)
+                end
+            elseif clickOn and player.Character then
+                local dist = (player.Character.PrimaryPart.Position - target.Position).Magnitude
+                if dist < 12 then
+                    local cd = target:FindFirstChildOfClass("ClickDetector")
+                    if cd then fireclickdetector(cd) end
+                end
+            end
+        end
+        task.wait(0.1)
+    end
+end)
+
+-- Update Tracer and ESP when leveling up
+player:WaitForChild("leaderstats"):WaitForChild("Level").Changed:Connect(function()
+    task.wait(0.5)
+    if espOn then updateESP() end
+end)
