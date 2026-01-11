@@ -1,0 +1,97 @@
+local player = game.Players.LocalPlayer
+local pGui = player:WaitForChild("PlayerGui")
+local runService = game:GetService("RunService")
+
+-- Create the Toggle UI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ESGToggleGui"
+screenGui.Parent = pGui
+screenGui.ResetOnSpawn = false
+
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 150, 0, 50)
+toggleBtn.Position = UDim2.new(0, 10, 0.5, 0) -- Middle left of screen
+toggleBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+toggleBtn.Text = "Button ESP: OFF"
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.Font = Enum.Font.SourceSansBold
+toggleBtn.TextSize = 20
+toggleBtn.Parent = screenGui
+
+local espEnabled = false
+local currentHighlight = nil
+
+-- Function to clean up ESP
+local function removeESP()
+    if currentHighlight then
+        currentHighlight:Destroy()
+        currentHighlight = nil
+    end
+end
+
+-- Function to apply the High-Visibility ESP
+local function applyESP(targetPart)
+    removeESP()
+    
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "ButtonESP"
+    highlight.Parent = targetPart
+    highlight.Adornee = targetPart
+    
+    -- Visual Settings
+    highlight.FillTransparency = 0.3
+    highlight.OutlineTransparency = 0
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- Bright White Outline
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    
+    currentHighlight = highlight
+
+    -- Rainbow Fill Loop
+    task.spawn(function()
+        local i = 0
+        while currentHighlight == highlight do
+            highlight.FillColor = Color3.fromHSV(i, 1, 1)
+            i = (i + 0.01) % 1
+            task.wait(0.03)
+        end
+    end)
+end
+
+-- Logic to find the current level button
+local function findAndHighlight()
+    if not espEnabled then return end
+    
+    local levelStat = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Level")
+    if levelStat then
+        local folder = game.Workspace:FindFirstChild("Levels") and game.Workspace.Levels:FindFirstChild(tostring(levelStat.Value))
+        local btn = folder and folder:FindFirstChild("ButtonModel") and folder.ButtonModel:FindFirstChild("Button")
+        
+        if btn then
+            applyESP(btn)
+        end
+    end
+end
+
+-- Button Click Logic
+toggleBtn.MouseButton1Click:Connect(function()
+    espEnabled = not espEnabled
+    
+    if espEnabled then
+        toggleBtn.Text = "Button ESP: ON"
+        toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 255, 50)
+        findAndHighlight()
+    else
+        toggleBtn.Text = "Button ESP: OFF"
+        toggleBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+        removeESP()
+    end
+end)
+
+-- Auto-update when leveling up
+local levelStat = player:WaitForChild("leaderstats"):WaitForChild("Level")
+levelStat.Changed:Connect(function()
+    if espEnabled then
+        task.wait(1) -- Wait for next level to load
+        findAndHighlight()
+    end
+end)
