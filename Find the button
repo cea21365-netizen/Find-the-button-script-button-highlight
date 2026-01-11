@@ -4,56 +4,47 @@ local runService = game:GetService("RunService")
 
 -- 1. Main UI Container
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "ButtonHelperUI"
+screenGui.Name = "ButtonGodUI"
 screenGui.Parent = pGui
 screenGui.ResetOnSpawn = false
 
--- 2. Main Draggable Frame (Holds everything)
+-- 2. Main Frame (Increased size for new button)
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 180, 0, 120)
+mainFrame.Size = UDim2.new(0, 180, 0, 160)
 mainFrame.Position = UDim2.new(0.1, 0, 0.4, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-mainFrame.BorderSizePixel = 0
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 mainFrame.Active = true
-mainFrame.Draggable = true -- Built-in Roblox drag property
+mainFrame.Draggable = true 
 mainFrame.Parent = screenGui
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
 
-Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
+-- UI List Layout for automatic spacing
+local layout = Instance.new("UIListLayout")
+layout.Parent = mainFrame
+layout.Padding = UDim.new(0, 5)
+layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+layout.VerticalAlignment = Enum.VerticalAlignment.Center
 
--- 3. ESP Toggle
-local espBtn = Instance.new("TextButton")
-espBtn.Size = UDim2.new(0, 160, 0, 35)
-espBtn.Position = UDim2.new(0, 10, 0, 10)
-espBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-espBtn.Text = "ESP: OFF"
-espBtn.TextColor3 = Color3.new(1, 1, 1)
-espBtn.Font = Enum.Font.GothamBold
-espBtn.Parent = mainFrame
-Instance.new("UICorner", espBtn)
+-- Helper to create buttons
+local function createBtn(text, color)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(0, 160, 0, 30)
+    b.BackgroundColor3 = color
+    b.Text = text
+    b.TextColor3 = Color3.new(1, 1, 1)
+    b.Font = Enum.Font.GothamBold
+    b.TextSize = 12
+    b.Parent = mainFrame
+    Instance.new("UICorner", b)
+    return b
+end
 
--- 4. Auto-Click Toggle
-local clickBtn = Instance.new("TextButton")
-clickBtn.Size = UDim2.new(0, 160, 0, 35)
-clickBtn.Position = UDim2.new(0, 10, 0, 50)
-clickBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-clickBtn.Text = "AUTO-CLICK: OFF"
-clickBtn.TextColor3 = Color3.new(1, 1, 1)
-clickBtn.Font = Enum.Font.GothamBold
-clickBtn.Parent = mainFrame
-Instance.new("UICorner", clickBtn)
+local espBtn = createBtn("ESP: OFF", Color3.fromRGB(60, 60, 60))
+local clickBtn = createBtn("AUTO-CLICK: OFF", Color3.fromRGB(60, 60, 60))
+local infBtn = createBtn("INFINITE CLICK: OFF", Color3.fromRGB(60, 60, 60))
+local hideBtn = createBtn("HIDE UI", Color3.fromRGB(150, 0, 0))
 
--- 5. Minimize/Hide Button
-local hideBtn = Instance.new("TextButton")
-hideBtn.Size = UDim2.new(0, 160, 0, 20)
-hideBtn.Position = UDim2.new(0, 10, 0, 90)
-hideBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
-hideBtn.Text = "HIDE UI"
-hideBtn.TextColor3 = Color3.new(1, 1, 1)
-hideBtn.Font = Enum.Font.Gotham
-hideBtn.Parent = mainFrame
-Instance.new("UICorner", hideBtn).CornerRadius = UDim.new(0, 5)
-
--- 6. Show Button (Restores visibility)
+-- Restore Button
 local showBtn = Instance.new("TextButton")
 showBtn.Size = UDim2.new(0, 60, 0, 30)
 showBtn.Position = UDim2.new(0, 10, 0, 10)
@@ -64,35 +55,29 @@ showBtn.Visible = false
 showBtn.Parent = screenGui
 Instance.new("UICorner", showBtn)
 
---- LOGIC VARIABLES ---
-local espOn = false
-local clickOn = false
+--- LOGIC ---
+local espOn, clickOn, infOn = false, false, false
 local currentHighlight = nil
 
--- Function to find the level button object
 local function getTargetButton()
     local levelStat = player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Level")
     if levelStat then
         local folder = game.Workspace:FindFirstChild("Levels") and game.Workspace.Levels:FindFirstChild(tostring(levelStat.Value))
+        -- Navigates Workspace > Levels > [Num] > ButtonModel > Button
         return folder and folder:FindFirstChild("ButtonModel") and folder.ButtonModel:FindFirstChild("Button")
     end
-    return nil
 end
 
--- ESP EFFECT
 local function updateESP()
     if currentHighlight then currentHighlight:Destroy() end
     if not espOn then return end
-    
     local target = getTargetButton()
     if target then
         local h = Instance.new("Highlight")
         h.Parent = target
-        h.OutlineColor = Color3.new(1, 1, 1) -- White Outline
-        h.FillTransparency = 0.3
+        h.OutlineColor = Color3.new(1, 1, 1)
         h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
         currentHighlight = h
-        
         task.spawn(function()
             local i = 0
             while currentHighlight == h do
@@ -104,7 +89,7 @@ local function updateESP()
     end
 end
 
---- BUTTON CLICKS ---
+-- Button Logic
 espBtn.MouseButton1Click:Connect(function()
     espOn = not espOn
     espBtn.Text = espOn and "ESP: ON" or "ESP: OFF"
@@ -114,44 +99,47 @@ end)
 
 clickBtn.MouseButton1Click:Connect(function()
     clickOn = not clickOn
-    clickBtn.Text = clickOn and "AUTO-CLICK: ON" or "AUTO-CLICK: OFF"
+    clickBtn.Text = clickOn and "AUTO: ON" or "AUTO: OFF"
     clickBtn.BackgroundColor3 = clickOn and Color3.fromRGB(0, 180, 0) or Color3.fromRGB(60, 60, 60)
 end)
 
-hideBtn.MouseButton1Click:Connect(function()
-    mainFrame.Visible = false
-    showBtn.Visible = true
+infBtn.MouseButton1Click:Connect(function()
+    infOn = not infOn
+    infBtn.Text = infOn and "INFINITE: ON" or "INFINITE: OFF"
+    infBtn.BackgroundColor3 = infOn and Color3.fromRGB(180, 0, 180) or Color3.fromRGB(60, 60, 60)
 end)
 
-showBtn.MouseButton1Click:Connect(function()
-    mainFrame.Visible = true
-    showBtn.Visible = false
-end)
+hideBtn.MouseButton1Click:Connect(function() mainFrame.Visible = false showBtn.Visible = true end)
+showBtn.MouseButton1Click:Connect(function() mainFrame.Visible = true showBtn.Visible = false end)
 
--- Level Change Auto-Update
-player:WaitForChild("leaderstats"):WaitForChild("Level").Changed:Connect(function()
-    task.wait(1)
-    if espOn then updateESP() end
-end)
-
--- THE RAPID CLICKER LOOP
+-- Master Loop
 task.spawn(function()
     while true do
-        if clickOn then
-            local target = getTargetButton()
-            if target and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                local dist = (player.Character.HumanoidRootPart.Position - target.Position).Magnitude
-                -- If within 10 studs, fire ClickDetector or TouchInterest
+        local target = getTargetButton()
+        if target then
+            -- INFINITE CLICK (No distance check)
+            if infOn then
+                local cd = target:FindFirstChildOfClass("ClickDetector")
+                if cd then fireclickdetector(cd) end
+                -- For touch buttons
+                if target:FindFirstChild("TouchInterest") and player.Character then
+                    firetouchinterest(target, player.Character.PrimaryPart, 0)
+                    firetouchinterest(target, player.Character.PrimaryPart, 1)
+                end
+            -- REGULAR AUTO CLICK (Within 12 studs)
+            elseif clickOn and player.Character then
+                local dist = (player.Character.PrimaryPart.Position - target.Position).Magnitude
                 if dist < 12 then
-                    if target:FindFirstChildOfClass("ClickDetector") then
-                        fireclickdetector(target:FindFirstChildOfClass("ClickDetector"))
-                    elseif target:FindFirstChild("TouchInterest") then
-                        firetouchinterest(target, player.Character.HumanoidRootPart, 0)
-                        firetouchinterest(target, player.Character.HumanoidRootPart, 1)
-                    end
+                    local cd = target:FindFirstChildOfClass("ClickDetector")
+                    if cd then fireclickdetector(cd) end
                 end
             end
         end
-        task.wait(0.1) -- Rapid fire speed
+        task.wait(0.1)
     end
+end)
+
+player:WaitForChild("leaderstats"):WaitForChild("Level").Changed:Connect(function()
+    task.wait(0.5) -- Wait for level to register
+    if espOn then updateESP() end
 end)
